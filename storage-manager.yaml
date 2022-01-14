@@ -1,0 +1,601 @@
+swagger: '2.0'
+info:
+  description: EUMETSAT Data Lake (EDL) Storage Manager API Documentation
+  version: 8.0.0
+  title: EDL Storage Manager API
+  termsOfService: https://www.eumetsat.int/terms
+  contact:
+    name: EUMETSAT
+    url: https://www.eumetsat.int
+    email: edl@eumetsat.int
+  license:
+    name: '''License: not yet defined. For the time being: confidential and private'
+host: api.edl.ope.dac.eumetsat.int
+basePath: /storage/8.0.0
+tags:
+  - name: sip-api-controller
+    description: Sip Api Controller
+paths:
+  /collections/{collectionId}/products/{productId}:
+    delete:
+      tags:
+        - sip-api-controller
+      summary: Deletes a product in the object storage and Elasticsearch
+      operationId: deleteProductUsingDELETE
+      produces:
+        - '*/*'
+      parameters:
+        - name: collectionId
+          in: path
+          description: Product's collection
+          required: true
+          type: string
+          x-example: EO:EUM:DAT:METOP:IASSND02
+        - name: productId
+          in: path
+          description: Identifier of the product to delete
+          required: true
+          type: string
+          x-example: IASI_SND_02_M01_20190105224459Z_20190106002659Z_N_O_20190105233915Z
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: string
+        '204':
+          description: Delete successful
+          schema:
+            type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      deprecated: false
+  /collections/{collectionId}/products/{productId}/metadata:
+    get:
+      tags:
+        - sip-api-controller
+      summary: Retrieves the product's indexed metadata.
+      operationId: getIndexedMetadataUsingGET
+      produces:
+        - application/json
+      parameters:
+        - name: collectionId
+          in: path
+          description: Product's collection
+          required: true
+          type: string
+          x-example: EO:EUM:DAT:METOP:IASSND02
+        - name: productId
+          in: path
+          description: Product identifier
+          required: true
+          type: string
+          x-example: IASI_SND_02_M01_20190105224459Z_20190106002659Z_N_O_20190105233915Z
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/ProductMetadata'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+    patch:
+      tags:
+        - sip-api-controller
+      summary: Update the product's metadata saved/indexed in Elasticsearch
+      description: This endpoint needs will be removed in the future as it could lead to inconsistencies.
+      operationId: patchIndexedMetadataUsingPATCH
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: collectionId
+          in: path
+          description: Product's collection
+          required: true
+          type: string
+          x-example: EO:EUM:DAT:METOP:IASSND02
+        - name: productId
+          in: path
+          description: Product identifier
+          required: true
+          type: string
+          x-example: IASI_SND_02_M01_20190105224459Z_20190106002659Z_N_O_20190105233915Z
+        - in: body
+          name: productRecord
+          description: productRecord
+          required: true
+          schema:
+            $ref: '#/definitions/ProductRecord'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: string
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      deprecated: true
+  /collections/{collectionId}/products/{productId}/resources/sip/entries:
+    get:
+      tags:
+        - sip-api-controller
+      summary: Retrieves an entry in a SIP file.
+      operationId: getSipEntriesUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: collectionId
+          in: path
+          description: Product's collection
+          required: true
+          type: string
+          x-example: EO:EUM:DAT:METOP:IASSND02
+        - name: entry
+          in: query
+          description: Name of the entry within the SIP file
+          required: true
+          type: string
+          allowEmptyValue: false
+          x-example: GRAS_RNX_1A_M01_20180219135942Z_20180219145941Z_20180219154045Z_PPFx_G1PPFB12xx.nat
+        - name: productId
+          in: path
+          description: Product identifier
+          required: true
+          type: string
+          x-example: IASI_SND_02_M01_20190105224459Z_20190106002659Z_N_O_20190105233915Z
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  /collections/{collectionId}/products/{productId}/resources/{sipResourceType}:
+    get:
+      tags:
+        - sip-api-controller
+      summary: Retrieves a SIP resource saved in the object storage.
+      operationId: getSipResourceUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: collectionId
+          in: path
+          description: Product's collection
+          required: true
+          type: string
+          x-example: EO:EUM:DAT:METOP:IASSND02
+        - name: productId
+          in: path
+          description: Product identifier
+          required: true
+          type: string
+          x-example: IASI_SND_02_M01_20190105224459Z_20190106002659Z_N_O_20190105233915Z
+        - name: sipResourceType
+          in: path
+          description: The resource to download
+          required: true
+          type: string
+          enum:
+            - sip
+            - browse
+            - metadata
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  /expired:
+    delete:
+      tags:
+        - sip-api-controller
+      summary: Deletes expired products from the S3 storage and elasticsearch
+      operationId: cleanExpiredProductUsingDELETE
+      produces:
+        - '*/*'
+      responses:
+        '202':
+          description: Remove expired product
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      deprecated: false
+  /logMessages:
+    get:
+      tags:
+        - sip-api-controller
+      summary: Gets the list of log message types.
+      operationId: sipGetFileUsingGET
+      produces:
+        - text/plain;charset=UTF-8
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+definitions:
+  Coordinate:
+    type: object
+    properties:
+      coordinate:
+        $ref: '#/definitions/Coordinate'
+      x:
+        type: number
+        format: double
+      'y':
+        type: number
+        format: double
+      z:
+        type: number
+        format: double
+    title: Coordinate
+  CoordinateSequence:
+    type: object
+    properties:
+      dimension:
+        type: integer
+        format: int32
+    title: CoordinateSequence
+  CoordinateSequenceFactory:
+    type: object
+    title: CoordinateSequenceFactory
+  Envelope:
+    type: object
+    properties:
+      area:
+        type: number
+        format: double
+      height:
+        type: number
+        format: double
+      maxX:
+        type: number
+        format: double
+      maxY:
+        type: number
+        format: double
+      minX:
+        type: number
+        format: double
+      minY:
+        type: number
+        format: double
+      'null':
+        type: boolean
+      width:
+        type: number
+        format: double
+    title: Envelope
+  FileContents:
+    type: object
+    properties:
+      fileEntries:
+        type: array
+        items:
+          $ref: '#/definitions/FileEntry'
+    title: FileContents
+  FileEntry:
+    type: object
+    properties:
+      contentType:
+        type: string
+      length:
+        type: integer
+        format: int64
+      name:
+        type: string
+      start:
+        type: integer
+        format: int64
+      uncompressedSize:
+        type: integer
+        format: int64
+    title: FileEntry
+  Geometry:
+    type: object
+    properties:
+      area:
+        type: number
+        format: double
+      boundary:
+        $ref: '#/definitions/Geometry'
+      boundaryDimension:
+        type: integer
+        format: int32
+      centroid:
+        $ref: '#/definitions/Point'
+      coordinate:
+        $ref: '#/definitions/Coordinate'
+      coordinates:
+        type: array
+        items:
+          $ref: '#/definitions/Coordinate'
+      dimension:
+        type: integer
+        format: int32
+      empty:
+        type: boolean
+      envelope:
+        $ref: '#/definitions/Geometry'
+      envelopeInternal:
+        $ref: '#/definitions/Envelope'
+      factory:
+        $ref: '#/definitions/GeometryFactory'
+      geometryType:
+        type: string
+      interiorPoint:
+        $ref: '#/definitions/Point'
+      length:
+        type: number
+        format: double
+      numGeometries:
+        type: integer
+        format: int32
+      numPoints:
+        type: integer
+        format: int32
+      precisionModel:
+        $ref: '#/definitions/PrecisionModel'
+      rectangle:
+        type: boolean
+      simple:
+        type: boolean
+      srid:
+        type: integer
+        format: int32
+      userData:
+        type: object
+      valid:
+        type: boolean
+    title: Geometry
+  GeometryFactory:
+    type: object
+    properties:
+      coordinateSequenceFactory:
+        $ref: '#/definitions/CoordinateSequenceFactory'
+      precisionModel:
+        $ref: '#/definitions/PrecisionModel'
+      srid:
+        type: integer
+        format: int32
+    title: GeometryFactory
+  Point:
+    type: object
+    properties:
+      area:
+        type: number
+        format: double
+      boundary:
+        $ref: '#/definitions/Geometry'
+      boundaryDimension:
+        type: integer
+        format: int32
+      centroid:
+        $ref: '#/definitions/Point'
+      coordinate:
+        $ref: '#/definitions/Coordinate'
+      coordinateSequence:
+        $ref: '#/definitions/CoordinateSequence'
+      coordinates:
+        type: array
+        items:
+          $ref: '#/definitions/Coordinate'
+      dimension:
+        type: integer
+        format: int32
+      empty:
+        type: boolean
+      envelope:
+        $ref: '#/definitions/Geometry'
+      envelopeInternal:
+        $ref: '#/definitions/Envelope'
+      factory:
+        $ref: '#/definitions/GeometryFactory'
+      geometryType:
+        type: string
+      interiorPoint:
+        $ref: '#/definitions/Point'
+      length:
+        type: number
+        format: double
+      numGeometries:
+        type: integer
+        format: int32
+      numPoints:
+        type: integer
+        format: int32
+      precisionModel:
+        $ref: '#/definitions/PrecisionModel'
+      rectangle:
+        type: boolean
+      simple:
+        type: boolean
+      srid:
+        type: integer
+        format: int32
+      userData:
+        type: object
+      valid:
+        type: boolean
+      x:
+        type: number
+        format: double
+      'y':
+        type: number
+        format: double
+    title: Point
+  PrecisionModel:
+    type: object
+    properties:
+      floating:
+        type: boolean
+      maximumSignificantDigits:
+        type: integer
+        format: int32
+      offsetX:
+        type: number
+        format: double
+      offsetY:
+        type: number
+        format: double
+      scale:
+        type: number
+        format: double
+      type:
+        $ref: '#/definitions/Type'
+    title: PrecisionModel
+  ProductMetadata:
+    type: object
+    properties:
+      browse_id:
+        type: string
+      collection:
+        type: string
+      fileContents:
+        $ref: '#/definitions/FileContents'
+      footprint:
+        $ref: '#/definitions/Geometry'
+      instrument:
+        type: string
+      last_modified:
+        type: string
+        format: date-time
+      md5:
+        type: string
+      metadata_id:
+        type: string
+      mission:
+        type: string
+      mode:
+        type: string
+      object_storage_info:
+        $ref: '#/definitions/S3ObjectHost'
+      productIdentifier:
+        type: string
+      productType:
+        type: string
+      product_id:
+        type: string
+      size:
+        type: number
+      start:
+        type: string
+        format: date-time
+      stop:
+        type: string
+        format: date-time
+      tile_lvl_1:
+        type: array
+        items:
+          type: string
+      tile_lvl_2:
+        type: array
+        items:
+          type: string
+    title: ProductMetadata
+  ProductRecord:
+    type: object
+    required:
+      - instrument
+      - md5
+      - parentIdentifier
+      - platform
+      - productIdentifier
+      - productSize
+      - productType
+      - sensingPeriodBegin
+      - sensingPeriodEnd
+    properties:
+      otherProperties:
+        type: object
+      productIdentifier:
+        type: string
+      productType:
+        type: string
+      parentIdentifier:
+        type: string
+      platform:
+        type: string
+      instrument:
+        type: string
+      sensorMode:
+        type: string
+      sensingPeriodBegin:
+        type: string
+        format: date-time
+      sensingPeriodEnd:
+        type: string
+        format: date-time
+      productSize:
+        type: number
+      md5:
+        type: string
+      footprint:
+        $ref: '#/definitions/Geometry'
+      gridZones:
+        type: array
+        items:
+          type: string
+      gridT6:
+        type: array
+        items:
+          type: string
+      gridT3:
+        type: array
+        items:
+          type: string
+      gridT1:
+        type: array
+        items:
+          type: string
+    title: ProductRecord
+  S3ObjectHost:
+    type: object
+    properties:
+      bucketName:
+        type: string
+      provider:
+        type: string
+      region:
+        type: string
+        enum:
+          - eu-central-1
+          - eu-north-1
+          - eu-south-1
+          - us-east-2
+          - us-west-1
+          - eu-west-1
+          - eu-west-2
+          - eu-west-3
+    title: S3ObjectHost
+  Type:
+    type: object
+    title: Type
