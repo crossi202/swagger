@@ -84,47 +84,6 @@ paths:
         '404':
           description: Not Found
       deprecated: false
-    patch:
-      tags:
-        - sip-api-controller
-      summary: Update the product's metadata saved/indexed in Elasticsearch
-      description: This endpoint needs will be removed in the future as it could lead to inconsistencies.
-      operationId: patchIndexedMetadataUsingPATCH
-      consumes:
-        - application/json
-      produces:
-        - '*/*'
-      parameters:
-        - name: collectionId
-          in: path
-          description: Product's collection
-          required: true
-          type: string
-          x-example: EO:EUM:DAT:METOP:IASSND02
-        - name: productId
-          in: path
-          description: Product identifier
-          required: true
-          type: string
-          x-example: IASI_SND_02_M01_20190105224459Z_20190106002659Z_N_O_20190105233915Z
-        - in: body
-          name: productRecord
-          description: productRecord
-          required: true
-          schema:
-            $ref: '#/definitions/ProductRecord'
-      responses:
-        '200':
-          description: OK
-          schema:
-            type: string
-        '204':
-          description: No Content
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-      deprecated: true
   /collections/{collectionId}/products/{productId}/resources/sip/entries:
     get:
       tags:
