@@ -250,5 +250,5 @@ components:
       type: oauth2
       flows:
         implicit:
-          authorizationUrl: https://api.lake.cgi-dev.de/authorize
+          authorizationUrl: https://api.edl.ope.dac.eumetsat.int/authorize
           scopes: {}
