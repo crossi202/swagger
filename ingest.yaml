@@ -102,6 +102,10 @@ components:
           type: string
           description: Error message, if something went wrong
   securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      name: X-API-Key
+      in: header
     default:
       type: oauth2
       flows:
