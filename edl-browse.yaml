@@ -1574,7 +1574,7 @@ components:
           productInformation:
             $ref: '#/components/schemas/ProductInformation'
           extraInformation:
-            $ref: '#/components/schemas/ProductInformation'
+            $ref: '#/components/schemas/ExtraInformation'
           links:
             $ref: '#/components/schemas/ProductLinks'
       - $ref: '#/components/schemas/DataIdentification'
