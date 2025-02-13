@@ -529,11 +529,6 @@ paths:
         - default: []
       x-auth-type: Application & Application User
       x-throttling-tier: Unlimited
-securityDefinitions:
-  default:
-    type: oauth2
-    authorizationUrl: https://api.store.cgi-dev.de/authorize
-    flow: implicit
 definitions:
   Link:
     type: object
