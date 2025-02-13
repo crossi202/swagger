@@ -33,10 +33,10 @@ paths:
       responses:
         '201':
           description: User created successfully.
-        '200':
-          description: User already exists.
         '400':
           description: Invalid request body.
+        '409':
+          description: User already exists.
   /members/self/tokens:
     post:
       summary: Create a personal access token
@@ -93,14 +93,15 @@ paths:
                       format: date-time
                       nullable: true
                       description: Token expiration timestamp, if set.
+  /members/self/tokens/{tokenId}:
     delete:
       summary: Revoke a personal access token
       operationId: revokePersonalAccessToken
       security:
         - ApiKeyAuth: []
       parameters:
-        - name: token_id
-          in: query
+        - name: tokenId
+          in: path
           required: true
           schema:
             type: string
@@ -108,8 +109,6 @@ paths:
       responses:
         '200':
           description: Token revoked successfully.
-        '400':
-          description: Invalid request parameters.
         '404':
           description: Token not found.
 components:
