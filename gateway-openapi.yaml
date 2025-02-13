@@ -1,0 +1,120 @@
+openapi: 3.0.3
+info:
+  title: MAAP Gateway API
+  description: API for managing members and personal access tokens.
+  version: 1.0.0
+servers:
+  - url: https://api.example.com
+    description: Production server
+paths:
+  /members:
+    post:
+      summary: Create a new member if it does not exist
+      operationId: createMember
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - uuid
+                - username
+              properties:
+                uuid:
+                  type: string
+                  format: uuid
+                  description: Unique identifier for the user.
+                username:
+                  type: string
+                  description: Username of the user.
+      responses:
+        '201':
+          description: User created successfully.
+        '200':
+          description: User already exists.
+        '400':
+          description: Invalid request body.
+  /members/self/tokens:
+    post:
+      summary: Create a personal access token
+      operationId: createPersonalAccessToken
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                expires_in:
+                  type: integer
+                  description: Expiration time in seconds (optional).
+      responses:
+        '201':
+          description: Token created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: The generated personal access token.
+        '400':
+          description: Invalid request body.
+    get:
+      summary: List personal access tokens
+      operationId: listPersonalAccessTokens
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: List of personal access tokens.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    token_id:
+                      type: string
+                      description: Identifier of the token.
+                    created_at:
+                      type: string
+                      format: date-time
+                      description: Token creation timestamp.
+                    expires_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+                      description: Token expiration timestamp, if set.
+    delete:
+      summary: Revoke a personal access token
+      operationId: revokePersonalAccessToken
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: token_id
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Identifier of the token to revoke.
+      responses:
+        '200':
+          description: Token revoked successfully.
+        '400':
+          description: Invalid request parameters.
+        '404':
+          description: Token not found.
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-MAAP-API-Key
